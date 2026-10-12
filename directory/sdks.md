@@ -66,6 +66,7 @@ Client and server-side libraries for building with x402. Start with the official
 - [@x402nano/exact](https://www.npmjs.com/package/@x402nano/exact) — Exact-scheme implementation for fixed-amount Nano (XNO) payments over x402 (registry.npmjs.org/@x402nano/exact, v0.3.0). No facilitator fee; settlement is the single Nano block.
 - [pursekeeper/x402-nano-exact](https://github.com/pursekeeper/x402-nano-exact) — Python implementation of the x402 exact scheme for Nano (XNO): the 402 handshake with exact fixed-amount math, settling face-to-face on the Nano ledger with no facilitator or gas.
 - [dual-rail](https://github.com/dhyabi2/dual-rail) — Python and Node acceptor that adds a Nano (XNO) settlement leg beside an existing USDC x402 rail: a 402 that names an XNO address and amount is settled against a Nano node, anything else falls through to the existing facilitator.
+- [nano-invoice](https://github.com/dhyabi2/nano-invoice#use-with-an-x402-seller) — Python library for the settlement side of an x402 seller on Nano (XNO): an invoice's per-request tagged amount becomes the `amount` of a `nano:mainnet` entry in `accepts[]` beside the existing USDC entry, and the payment is settled from the Nano ledger, one block per invoice, with refunds addressed to the sender the ledger names.
 
 ### XRPL
 - [xrpl-x402-core](https://pypi.org/project/xrpl-x402-core/) — Wire-level validation with CAIP-2 XRPL identifiers.
