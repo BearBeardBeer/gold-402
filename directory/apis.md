@@ -263,6 +263,7 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 - [Sirenic](https://api.sirenic.eu/.well-known/x402.json) — French and European company data from official registries: company search and profiles by SIREN, establishments, KYB checks, sanctions screening and annual accounts. Its manifest lists 121 routes, from $0.002 USDC per call on Base, with EURC also quoted. Example: `GET /v1/recherche`.
 - [Oromi Agent Services](https://agents.oromi.co.uk/.well-known/x402) — UK public-record lookups: Companies House search, company profiles and name checks, and Land Registry price trends and sold prices. Its manifest lists 27 routes, from $0.001 USDC per call on Base. Example: `GET /api/uk-business/search` ($0.005).
 - [Recompete Radar](https://recompete.melchiorlabs.com/.well-known/x402.json) — Finds a recipient's US federal contract awards whose period of performance ends within a given window, source-linked to USAspending.gov. $0.03 USDC per call on Base or Solana. Example: `POST /v1/awards/expiring`.
+- [HSH Data-on-Demand](https://dod.hshintelligence.com/.well-known/x402.json) — Company and contact data for B2B research: a live profile of a company by name or domain, and named decision-makers drawn from US securities filings and accelerator cohorts, with firmographics alongside. Its manifest lists 24 routes, from $0.02 USDC per call on Base or Solana. Example: `GET /x402/t/hsh-company-intelligence`.
 
 ---
 
