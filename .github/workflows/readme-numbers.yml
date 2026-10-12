@@ -18,7 +18,11 @@ name: README Numbers
 on:
   push:
     branches: [main]
-    paths: ['directory/**']     # a merge changed the shelf; the number follows it
+    paths:
+      - 'directory/**'                          # a merge changed the shelf; the number follows it
+      - 'scripts/readme_numbers.py'             # a change to the counter is tested by running it,
+      - 'scripts/push_readme.sh'                # not found out at the next daily run
+      - '.github/workflows/readme-numbers.yml'
   schedule:
     - cron: '45 9 * * *'        # daily backstop, 15 min after weekly-additions
   workflow_dispatch:
