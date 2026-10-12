@@ -342,3 +342,5 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 - [Agent Embassy](https://agent-embassy.fly.dev/v1/check/verify) — Agents pay per call in USDC via x402 for verified web checks with signed Outcome Receipts, encrypted recovery registration, and GPU market data.
 
+
+- [GLEE Acceptance Verifier](https://gleephoenix.com/api/x402/verify/patch) — Deterministic git unified diff acceptance verifier: checks delivered code patches against caller-declared path policies, static safety rules, and literal assertions; returns PASS/FAIL with an offline-verifiable Ed25519 cryptographic receipt. $0.05 USDC on Base mainnet. Includes sub-cent diagnostic health canary at $0.005 USDC (`GET /api/x402/ping`). ([OpenAPI](https://gleephoenix.com/openapi.json)) ([Discovery](https://gleephoenix.com/.well-known/x402)) ([Docs](https://platform.gleephoenix.com/docs/x402))
