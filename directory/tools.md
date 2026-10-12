@@ -50,6 +50,7 @@ Development tools, CLI utilities, monitoring, analytics, and CI/CD integrations 
 - [Base Sepolia Testnet](https://docs.base.org/docs/network-information) — Primary testnet for x402 development.
 - [Base Sepolia USDC Faucet](https://faucet.circle.com/) — Get test USDC for development.
 - [Base Sepolia Bridge](https://bridge.base.org/) — Bridge test ETH to Base Sepolia.
+- [Tate Programs x402 Surface Checks](https://the402.tateprograms.com/.well-known/x402.json) — Paid launch-readiness checks of a public x402, MPP, Pay.sh or A2A surface, plus a 402 Index health watch and an agent-skill trust check. Its manifest lists four routes, $0.01 USDC per call on Base. Example: `POST /api/x402/triage`.
 
 ---
 
