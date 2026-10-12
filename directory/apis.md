@@ -159,6 +159,8 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 - [TokenSafe](https://tokensafe.x402api.workers.dev/) — Sells a safety verdict for any Base ERC-20 token address: honeypot and non-transferable checks plus liquidity and holder concentration read from live chain state. $0.005 USDC on Base per call. `GET /?address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984`.
 - [Pool Slippage](https://slippage.x402api.workers.dev/slip) — Sells a constant-product price-impact quote for a Uniswap V2 pool, computed from that pool's live reserves. $0.005 USDC on Base per call. `GET /?pool=0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc&amount=1000000`, where `amount` is in token0 base units.
 
+- [Open Rails Data Agent](https://open-rails-data-agent.shablony-pro.workers.dev/.well-known/x402) — Seven pay-per-call x402 data endpoints on Celo mainnet for blocks, gas prices, wallet and token balances, transactions, receipts and ERC-8004 identity URIs, priced at 0.0005-0.002 USDC per call with no API keys. ([GitHub](https://github.com/Alex20Sas12/x402-open-rails-agent))
+
 ## Finance & FX
 
 - [Mercury402](https://mercury402.uk/.well-known/x402) — Pay-per-call U.S. Treasury and macro data API. FRED indicators, yield curves, GDP data with USDC micropayments on Base.
