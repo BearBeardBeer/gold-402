@@ -62,6 +62,7 @@ Security tools, spending controls, audit resources, and best practices for x402 
 - [Cleared Index](https://clearedindex.com/.well-known/x402.json) — Trust provider and verification index with a conformant trust-evaluation endpoint: `POST /api/cleared/trust/evaluate` (`x402-trust-evaluation-v0.1`), Ed25519 signed attestations, and public JWKS at `GET /api/cleared/jwks`. Discovery manifest: `/.well-known/x402.json`.
 - [x402 Checker (Nock)](https://x402-checker.nock-for-mak.workers.dev/report) — Free `GET /check?url=` honesty probe of a live x402 URL plus free `GET /board` (pay-to-rank, 24h) and `GET /name`; paid `GET /report?url=` is $0.05 USDC on Base via PayAI, and `POST /bid` and `POST /name` are $0.05. Example: `GET /check?url=https://example.com`. ([Manifest](https://x402-checker.nock-for-mak.workers.dev/.well-known/x402)) ([OpenAPI](https://x402-checker.nock-for-mak.workers.dev/openapi.json)) ([GitHub](https://github.com/nock-for-mak/skills))
 - [MIDAX402](https://midax402.com/.well-known/x402.json) — Signed EIP-712 conformance verdicts for x402 services, appended to a public registry. Paid board position available ($1–$100 ladder) as a separate column; no payment changes a verdict or the verification-date ordering.
+- [Verdix](https://api.verdixapi.com/.well-known/x402.json) — Checks an EVM address on Base before an agent sends funds to it: OFAC sanctions, scam/phishing lists, live address-poisoning detection, and flagged deployers, answering safe, caution, or danger, $0.01-$0.50 USDC per call, never charged if the check can't complete.
 
 ---
 
