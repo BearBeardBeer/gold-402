@@ -177,6 +177,9 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 - [TokenSafe](https://tokensafe.x402api.workers.dev/) — Sells a safety verdict for any Base ERC-20 token address: honeypot and non-transferable checks plus liquidity and holder concentration read from live chain state. $0.005 USDC on Base per call. `GET /?address=0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984`.
 - [Pool Slippage](https://slippage.x402api.workers.dev/slip) — Sells a constant-product price-impact quote for a Uniswap V2 pool, computed from that pool's live reserves. $0.005 USDC on Base per call. `GET /?pool=0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc&amount=1000000`, where `amount` is in token0 base units.
 - [Open Rails Data Agent](https://open-rails-data-agent.shablony-pro.workers.dev/.well-known/x402) — Seven pay-per-call x402 data endpoints on Celo mainnet for blocks, gas prices, wallet and token balances, transactions, receipts and ERC-8004 identity URIs, priced at 0.0005-0.002 USDC per call with no API keys. ([GitHub](https://github.com/Alex20Sas12/x402-open-rails-agent))
+- [Checkpoint402 Transaction Explainer](https://api.checkpoint402.com/v1/tx-explain) — Explains a Base or Ethereum transaction in plain English with the decoded sender, function called, token and NFT transfers, status and fee, for $0.03 USDC per call on Base. Example: `GET /v1/tx-explain?hash=0x1ddeee1cdb4dd126b56c1f249501e2b48d885eae512602b5321765597bc27c2a&chain=base`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
+- [Checkpoint402 DeFi Yield Finder](https://api.checkpoint402.com/v1/defi-yields) — Returns top DeFi pool yields from DefiLlama filtered by asset, chain, minimum TVL and risk tier, with the reasons behind each pool's risk tier, for $0.05 USDC per call on Base. Example: `GET /v1/defi-yields?asset=USDC&chain=Base&limit=5`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
+- [Checkpoint402 New Token Safety Feed](https://api.checkpoint402.com/v1/new-tokens) — Lists newly launched token pools on Base, Ethereum or BSC with a 0–100 safety score and red flags from GoPlus (honeypot, mintable, owner powers, high tax, unlocked liquidity), for $0.10 USDC per call on Base. Example: `GET /v1/new-tokens?chain=base&limit=5`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
 
 ## Finance & FX
 
@@ -196,6 +199,7 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 ---
 - [IBANforge](https://ibanforge.com) — Pre-payout IBAN screening: validation + issuing-bank identification against 6 national bank registers (CH/LI, DE, AT, BE, FI), Swiss clearing incl. QR-IID resolution, bank-level sanctions, SEPA + VoP reachability. 121k+ BICs, 89 IBAN countries. $0.002-$0.02 USDC on Base (CDP facilitator). MCP: `npx -y ibanforge-mcp`. ([OpenAPI](https://api.ibanforge.com/openapi.json), [x402 discovery](https://api.ibanforge.com/.well-known/x402))
+- [Checkpoint402 Company Events (SEC 8-K)](https://api.checkpoint402.com/v1/company-events) — Returns the latest SEC 8-K filings market-wide or for one ticker, with item codes in plain English, high-impact events flagged and AI summaries of the filing text, for $0.10 USDC per call on Base. Example: `GET /v1/company-events?ticker=AAPL&limit=3`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
 
 ## Web & Geospatial
 
