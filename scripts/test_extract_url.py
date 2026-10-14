@@ -9,7 +9,7 @@ gate got wrong. Run it before touching the picker:  python3 scripts/test_extract
 import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
-from extract_url import pick  # noqa: E402
+from extract_url import pick, pick_example  # noqa: E402
 
 CASES = [
     (
@@ -89,8 +89,70 @@ CASES = [
 ]
 
 
+# THE 2026-10-14 DOOR -- five false reds in one day, two of them this file's.
+CASES += [
+    (
+        "#340 Checkpoint402 -- body names the bare marketing host; the entry line's route wins",
+        "Adds Checkpoint402 Sanctions Screening to the security shelf.\n"
+        "Homepage: https://checkpoint402.com\n",
+        "https://api.checkpoint402.com/v1/sanctions-screen",
+        3,
+        "- [Checkpoint402 Sanctions Screening](https://api.checkpoint402.com/v1/sanctions-screen) — "
+        "Screens a name or wallet against OFAC, $0.05 USDC per call on Base.",
+    ),
+    (
+        "bare host in the body, no entry line -- unchanged, tier 3 on the host",
+        "See https://example-x402.dev for details\n",
+        "https://example-x402.dev",
+        3,
+    ),
+    (
+        "body url has a route -- the entry line does not override it",
+        "Try https://svc.example.dev/v1/quote first.\n",
+        "https://svc.example.dev/v1/quote",
+        3,
+        "- [Svc](https://svc.example.dev/v1/other) — a line.",
+    ),
+]
+
+EXAMPLE_CASES = [
+    (
+        "#175 shape -- Example: line in the body wins over the entry line",
+        'endpoint: https://x402-list.com/api/v1/suggestions\nExample: {"text":"hi"}\n',
+        '- [x](https://x402-list.com/api/v1/suggestions) — `POST /x {"other":1}`',
+        '{"text":"hi"}',
+    ),
+    (
+        "#345 Softbot -- no Example: line; the JSON on the entry line is the body",
+        "Adds Softbot Email Check.\n",
+        "- [Softbot Email Check](https://softbot-emailcheck-mainnet.softbot.workers.dev/.well-known/x402) — "
+        'Checks deliverability, $0.002 USDC per call. `POST /v1/email {"email":"a@example.com"}`',
+        '{"email":"a@example.com"}',
+    ),
+    (
+        "braces that are not JSON on the entry line -- ignored, empty-body probe",
+        "Adds a thing.\n",
+        "- [Thing](https://thing.dev/.well-known/x402) — returns {verdict, score} per call.",
+        "",
+    ),
+    (
+        "nothing anywhere -- empty",
+        "Adds a thing.\n",
+        "- [Thing](https://thing.dev/v1/go) — a line.",
+        "",
+    ),
+]
+
+
 def main() -> int:
     failures = 0
+    for name, body, added, want in EXAMPLE_CASES:
+        got = pick_example(body, added)
+        ok = got == want
+        print(f"{'PASS' if ok else 'FAIL'}  {name}")
+        if not ok:
+            failures += 1
+            print(f"      want {want!r}, got {got!r}")
     for case in CASES:
         name, body, want_url, want_tier = case[:4]
         added = case[4] if len(case) > 4 else ""
@@ -101,7 +163,8 @@ def main() -> int:
             failures += 1
             print(f"      want tier {want_tier} {want_url!r}")
             print(f"      got  tier {tier} {url!r}  ({why})")
-    print(f"\n{len(CASES) - failures}/{len(CASES)} passed")
+    total = len(CASES) + len(EXAMPLE_CASES)
+    print(f"\n{total - failures}/{total} passed")
     return 1 if failures else 0
 
 
