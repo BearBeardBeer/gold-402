@@ -354,3 +354,4 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 - [Softbot Reader](https://softbot-reader-mainnet.softbot.workers.dev/.well-known/x402) — Converts a public web page URL to clean markdown, $0.003 USDC per call on Base or Solana via x402. `POST /v1/read {"url":"https://example.com"}`
 - [Softbot Token Check](https://softbot-tokencheck-mainnet.softbot.workers.dev/.well-known/x402) — Returns a safe/caution/avoid verdict with reasons for a Solana token mint, $0.01 USDC per call on Base or Solana via x402. `POST /v1/check {"mint":"<solana mint>"}`
+- [Softbot Email Check](https://softbot-emailcheck-mainnet.softbot.workers.dev/.well-known/x402) — Checks email address and domain deliverability signals without mailbox probing, $0.002 USDC per call on Base or Solana via x402. `POST /v1/email {"email":"a@example.com"}`
