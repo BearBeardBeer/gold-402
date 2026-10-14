@@ -49,6 +49,7 @@ Exit 0 with empty output when there is no url at all -- the workflow decides wha
 that means, not this script.
 """
 
+import json
 import os
 import re
 import sys
@@ -93,6 +94,12 @@ def host(url: str) -> str:
     return h.lower()
 
 
+def has_path(url: str) -> bool:
+    """True when the url names something past the host -- `/v1/x` yes, `/` no."""
+    rest = url.split("://", 1)[-1].split("/", 1)
+    return len(rest) == 2 and rest[1].strip("/") != ""
+
+
 def is_offsite(url: str) -> bool:
     h = host(url)
     return any(h == d or h.endswith("." + d) for d in OFFSITE)
@@ -130,21 +137,64 @@ def pick(body: str, added: str = ""):
 
     for u in urls:
         if not is_offsite(u):
+            # A BARE HOST IS A FRONT DOOR, NOT A ROUTE  (added 2026-10-14, found on
+            # #339/#340 Checkpoint402). The body named `https://checkpoint402.com`,
+            # the marketing page, which answers 200; the entry line named
+            # `api.checkpoint402.com/v1/sanctions-screen`, which answers 402. When
+            # the body's only candidate has no path and the entry line has one,
+            # the entry line is the door we were actually asked to knock.
+            if not has_path(u):
+                e = from_entry(added)
+                if e and has_path(e[0]):
+                    return e[0], 3, ("entry line names a route; the description's "
+                                     "url is a bare host")
             return u, 3, "first url that is not a package, repo or social link"
 
     return urls[0], 4, "first url in the description"
 
 
+EXAMPLE_RE = re.compile(r"(?i)example\s*:\s*(\{.*\})")
+INLINE_JSON_RE = re.compile(r"(\{[^{}\n]*\})")
+
+
+def pick_example(body: str, added: str = "") -> str:
+    """The request body to knock with, or "" for the empty-body probe.
+
+    An `Example: {...}` line in the description has always won. Added 2026-10-14
+    (found on #343/#344/#345 Softbot): operators also write the example ON THE
+    ENTRY LINE -- `POST /v1/email {"email":"a@example.com"}` -- and nowhere else.
+    That is the same information in the place CONTRIBUTING shows it, so the first
+    single-line `{...}` on an added shelf line is the fallback. It must parse as
+    JSON; prose in braces is not a request body."""
+    m = EXAMPLE_RE.search(body or "")
+    if m:
+        return m.group(1)
+    for line in (added or "").splitlines():
+        if not ENTRY_RE.match(line):
+            continue
+        for cand in INLINE_JSON_RE.findall(line):
+            try:
+                json.loads(cand)
+                return cand
+            except ValueError:
+                continue
+    return ""
+
+
 def main() -> int:
-    url, tier, why = pick(os.environ.get("PR_BODY", ""), os.environ.get("PR_ADDED", ""))
+    body, added = os.environ.get("PR_BODY", ""), os.environ.get("PR_ADDED", "")
+    url, tier, why = pick(body, added)
+    example = pick_example(body, added)
     print(f"[extract_url] tier {tier}: {why}")
     print(f"[extract_url] url: {url or '(none)'}")
+    print(f"[extract_url] example body: {example[:120] if example else '(none -- empty-body probe)'}")
     out = os.environ.get("GITHUB_OUTPUT")
     if out:
         with open(out, "a", encoding="utf-8") as fh:
             fh.write(f"url={url}\n")
             fh.write(f"tier={tier}\n")
             fh.write(f"why={why}\n")
+            fh.write(f"example={example}\n")
     return 0
 
 

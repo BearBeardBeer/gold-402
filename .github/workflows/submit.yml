@@ -123,22 +123,21 @@ jobs:
             echo "::notice::Contact supplied. Kept out of the directory, per CONTRIBUTING.md -> How we reach you."
           fi
 
-      - name: Extract example request body from PR body (optional)
-        id: extract_example
+      # THE EXAMPLE BODY LIVES WHERE OPERATORS PUT IT  (rewritten 2026-10-14,
+      # found on #343/#344/#345). This was a grep over the PR body for an
+      # `Example: {...}` line. Three submitters wrote their example on the entry
+      # line instead -- `POST /v1/email {"email":"a@example.com"}` -- and were
+      # told their route answered 400. The picker now reads the body line first
+      # and the added shelf lines second; the rule and its tests live in
+      # scripts/extract_url.py next to the url rule it shares inputs with.
+      - name: Note the example request body (optional)
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
+          EXAMPLE: ${{ steps.extract_url.outputs.example }}
         run: |
-          # Optional `Example: {json}` line -- endpoints that validate request
-          # parameters BEFORE the 402 challenge (e.g. OpenAI-compatible APIs)
-          # cannot answer an empty-body probe with 402. When present, the gate
-          # probes with this body instead of {}.
-          EXAMPLE=$(echo "$PR_BODY" | \
-            grep -oP '(?i)example\s*:\s*\K\{.*\}' | head -1)
-          echo "example=$EXAMPLE" >> "$GITHUB_OUTPUT"
           if [ -n "$EXAMPLE" ]; then
-            echo "Extracted example request body: ${EXAMPLE:0:120}"
+            echo "Example request body: ${EXAMPLE:0:120}"
           else
-            echo "No example request body -- empty-body probe will be used"
+            echo "No example request body -- empty-body probe, then the manifest's own input schema if it declares one"
           fi
 
       # WHICH ACCEPTANCE RULE APPLIES  (added 2026-09-05)
@@ -190,7 +189,7 @@ jobs:
           # PR-derived values reach the shell as environment variables only --
           # never spliced into the command line as expression text.
           SUBMIT_URL: ${{ steps.extract_url.outputs.url }}
-          EXAMPLE_BODY: ${{ steps.extract_example.outputs.example }}
+          EXAMPLE_BODY: ${{ steps.extract_url.outputs.example }}
           SUBMIT_MODE: ${{ steps.mode.outputs.mode }}
         # WHY continue-on-error (2026-09-05, found on #185).
         # submit_check.py exits 1 on a fail. Every step after a failed step

@@ -263,7 +263,42 @@ def looks_like_manifest(url):
 
 def manifest_resources(url):
     """Fetch an x402 manifest and return the endpoint URLs it declares.
-    Returns (urls, error). Never raises."""
+    Returns (urls, error). Never raises. Thin wrapper over manifest_doors()."""
+    doors, err = manifest_doors(url)
+    return [u for u, _ in doors], err
+
+
+def body_from_schema(schema):
+    """Build a placeholder request body from a resource's declared `input`
+    JSON schema, or b"" when there is nothing to build from.
+
+    Added 2026-10-14 (found on #343/#344/#345 Softbot): a POST-only route that
+    validates its body answers `{}` with 400, never 402. Those manifests declare
+    `input: {required: [...], properties: {...}}` -- the service told us exactly
+    what it wants. One placeholder per required field, typed from the schema, is
+    enough to get past validation to the 402. The value is never meant to be
+    valid data, only well-formed."""
+    if not isinstance(schema, dict):
+        return b""
+    props = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
+    required = schema.get("required") if isinstance(schema.get("required"), list) else []
+    fields = [f for f in required if isinstance(f, str)] or list(props)[:3]
+    if not fields:
+        return b""
+    placeholder = {"string": "example", "number": 1, "integer": 1, "boolean": True,
+                   "array": [], "object": {}}
+    body = {}
+    for f in fields:
+        t = (props.get(f) or {}).get("type") if isinstance(props.get(f), dict) else None
+        if isinstance(t, list):
+            t = next((x for x in t if x != "null"), None)
+        body[f] = placeholder.get(t, "example")
+    return json.dumps(body).encode()
+
+
+def manifest_doors(url):
+    """Fetch an x402 manifest and return [(endpoint_url, input_schema_or_None)].
+    Returns (doors, error). Never raises."""
     try:
         req = urllib.request.Request(
             url, method="GET",
@@ -294,7 +329,11 @@ def manifest_resources(url):
     base = doc.get("baseUrl") or doc.get("base_url") or f"{_p.scheme}://{_p.netloc}"
     urls = []
 
-    def add(ref):
+    def add(ref, schema=None):
+        # x402 v2 writes `resource` as an object ({url, description}); older
+        # manifests write a string. Both are a door (noted by Verdix on #326).
+        if isinstance(ref, dict):
+            ref = ref.get("url") or ref.get("resource")
         if not isinstance(ref, str) or not ref.strip():
             return
         ref = ref.strip()
@@ -302,10 +341,9 @@ def manifest_resources(url):
             verb, _, rest = ref.partition(" ")
             if verb.upper() in ("GET", "POST", "PUT", "PATCH", "DELETE"):
                 ref = rest.strip()
-        if ref.startswith(("http://", "https://")):
-            urls.append(ref)
-        else:
-            urls.append(urllib.parse.urljoin(base.rstrip("/") + "/", ref.lstrip("/")))
+        if not ref.startswith(("http://", "https://")):
+            ref = urllib.parse.urljoin(base.rstrip("/") + "/", ref.lstrip("/"))
+        urls.append((ref, schema if isinstance(schema, dict) else None))
 
     for key in ("resources", "endpoints", "services", "paths", "apis", "routes"):
         val = doc.get(key)
@@ -315,21 +353,23 @@ def manifest_resources(url):
                     add(item)
                 elif isinstance(item, dict):
                     add(item.get("resource") or item.get("url")
-                        or item.get("path") or item.get("endpoint"))
+                        or item.get("path") or item.get("endpoint"),
+                        item.get("input") or item.get("inputSchema"))
         elif isinstance(val, dict):
             for k, v in val.items():
                 if isinstance(v, str):
                     add(v)
                 elif isinstance(v, dict):
-                    add(v.get("resource") or v.get("url") or v.get("path") or k)
-    if isinstance(doc.get("resource"), str):
+                    add(v.get("resource") or v.get("url") or v.get("path") or k,
+                        v.get("input") or v.get("inputSchema"))
+    if isinstance(doc.get("resource"), (str, dict)):
         add(doc["resource"])
 
     seen, uniq = set(), []
-    for u in urls:
+    for u, schema in urls:
         if u not in seen:
             seen.add(u)
-            uniq.append(u)
+            uniq.append((u, schema))
     if not uniq:
         return [], "manifest declares no resources"
     return uniq, None
@@ -409,15 +449,27 @@ def main():
     # 4b0. Service mode, manifest form -- the URL we were given is a map, not the
     # door. Read it, then knock the doors it names. Each one gets its own SSRF
     # check: the manifest is a document a stranger controls.
+    # The example body applies to BOTH forms below. Until 2026-10-14 the manifest
+    # path knocked with `{}` whatever the PR said (found on #343/#344/#345): a
+    # submitter who wrote the example we ask for was still told their route
+    # answered 400. Parsed once, here, so neither path can drift again.
+    probe_body = b"{}"
+    if example_body:
+        try:
+            json.loads(example_body)
+        except Exception as e:
+            fail(f"invalid example request body in PR (must be valid JSON): {e}")
+        probe_body = example_body.encode()
+
     if looks_like_manifest(url):
         print(f"[submit_check] {url} is an x402 manifest -- reading the resources it declares")
-        resources, err = manifest_resources(url)
+        doors, err = manifest_doors(url)
         if err:
             fail(f"{err}. A manifest at /.well-known/x402 must be valid JSON "
                  f"declaring the endpoints it sells.")
-        print(f"[submit_check] manifest declares {len(resources)} resource(s)")
+        print(f"[submit_check] manifest declares {len(doors)} resource(s)")
         tried = []
-        for r in resources[:5]:
+        for r, schema in doors[:5]:
             r_host = urllib.parse.urlparse(r).hostname
             if not r_host:
                 continue
@@ -426,26 +478,36 @@ def main():
                 print(f"[submit_check] skipping {r} -- resolves to private/reserved IP ({ip_addr})")
                 continue
             print(f"[submit_check] knocking {r} for HTTP 402...")
-            code, note = probe_for_402(r)
+            code, note = probe_for_402(r, probe_body)
+            # A 400/422 on the empty probe is the route asking for a body. If the
+            # manifest declared one, build it and knock once more. Nothing here can
+            # turn a dead door into a pass: the second knock still has to say 402.
+            if code in (400, 422) and not example_body:
+                built = body_from_schema(schema)
+                if built:
+                    print(f"[submit_check] {r} wants a body -- retrying with one built "
+                          f"from the manifest's input schema")
+                    code2, note2 = probe_for_402(r, built)
+                    if code2 is not None:
+                        code, note = code2, f"{code} on empty body, {note2} with schema body"
             tried.append(f"{r} -> {code if code else note}")
             if code == 402:
-                ok(f"manifest at {url} declares {len(resources)} resource(s); "
+                ok(f"manifest at {url} declares {len(doors)} resource(s); "
                    f"{r} answered HTTP 402 -- x402 compliant")
         detail = "; ".join(tried) if tried else "no publicly resolvable resource in the manifest"
+        hint = ""
+        if any(" -> 400" in t or " -> 422" in t for t in tried):
+            hint = (" A 400/422 means the route checked the request before the "
+                    "402. Add an `Example: {...}` line to the PR body with values "
+                    "the route accepts, and the gate will knock with it.")
         fail(f"manifest at {url} is readable, but none of the endpoints it declares "
-             f"answered HTTP 402 ({detail}).")
+             f"answered HTTP 402 ({detail}).{hint}")
 
     # 4b. Service mode -- probe for 402. Uses the shared probe_for_402(), which
     # tries POST first and retries GET on a 405 -- see that function's docstring
     # (PR #224) for why. Previously this block had its own inline POST-only
     # request, duplicating (and drifting from) the manifest path's probe.
-    probe_body = b"{}"
     if example_body:
-        try:
-            json.loads(example_body)
-        except Exception as e:
-            fail(f"invalid example request body in PR (must be valid JSON): {e}")
-        probe_body = example_body.encode()
         print(f"[submit_check] Probing {url} with example request body...")
     else:
         print(f"[submit_check] Probing {url} for HTTP 402...")
