@@ -178,6 +178,8 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 - [Pool Slippage](https://slippage.x402api.workers.dev/slip) — Sells a constant-product price-impact quote for a Uniswap V2 pool, computed from that pool's live reserves. $0.005 USDC on Base per call. `GET /?pool=0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc&amount=1000000`, where `amount` is in token0 base units.
 - [Open Rails Data Agent](https://open-rails-data-agent.shablony-pro.workers.dev/.well-known/x402) — Seven pay-per-call x402 data endpoints on Celo mainnet for blocks, gas prices, wallet and token balances, transactions, receipts and ERC-8004 identity URIs, priced at 0.0005-0.002 USDC per call with no API keys. ([GitHub](https://github.com/Alex20Sas12/x402-open-rails-agent))
 
+- [BTC Intel](https://9eouter-0f49c8.abyte.my.id/.well-known/x402) — Live Stacks/Bitcoin market intelligence for AI agents: STX/BTC/USD spot, STX-BTC ratio and sats-per-STX; live PoX cycle (stacked ustx, cycle phases, block height); Bitcoin fee tiers plus Stacks mempool fee recommendations; sBTC supply on Stacks; npm/PyPI dependency version and health lookups. Dual-rail x402: USDC on Base (eip155:8453) or STX on Stacks mainnet, $0.01/call, no API keys or accounts. Example: `GET /market`. ([OpenAPI](https://9eouter-0f49c8.abyte.my.id/openapi.json)) ([llms.txt](https://9eouter-0f49c8.abyte.my.id/llms.txt)) ([Discovery](https://9eouter-0f49c8.abyte.my.id/.well-known/x402))
+
 ## Finance & FX
 
 - [Mercury402](https://mercury402.uk/.well-known/x402) — Pay-per-call U.S. Treasury and macro data API. FRED indicators, yield curves, GDP data with USDC micropayments on Base.
