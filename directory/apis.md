@@ -343,3 +343,4 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 - [Agent Embassy](https://agent-embassy.fly.dev/v1/check/verify) — Agents pay per call in USDC via x402 for verified web checks with signed Outcome Receipts, encrypted recovery registration, and GPU market data.
 
+- [Softbot Reader](https://softbot-reader-mainnet.softbot.workers.dev/.well-known/x402) — Converts a public web page URL to clean markdown, $0.003 USDC per call on Base or Solana via x402. `POST /v1/read {"url":"https://example.com"}`
