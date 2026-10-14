@@ -75,6 +75,7 @@ Security tools, spending controls, audit resources, and best practices for x402 
 - [LION](https://lionx402.com/.well-known/x402.json) — Compliance and company lookups for agents: OFAC SDN wallet screening that answers pass, warn or block, a multi-list sanctions bundle, and company research and enrichment. Its manifest lists 21 routes, from $0.001 USDC per call on Base. Example: `GET /api/x402/wallet-screen-json`.
 
 ---
+- [Checkpoint402 Sanctions Screening](https://api.checkpoint402.com/v1/sanctions-screen) — Screens a person or company name (fuzzy, alias-aware) and/or a crypto wallet address against the US Treasury OFAC SDN list including its extended remarks, for $0.05 USDC per call on Base; informational, not a compliance determination. Example: `GET /v1/sanctions-screen?address=0x098B716B8Aaf21512996dC57EB0615e2383E2f96`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
 
 ## Bug Bounty Programs
 
