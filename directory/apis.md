@@ -182,6 +182,8 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 - [Checkpoint402 DeFi Yield Finder](https://api.checkpoint402.com/v1/defi-yields) — Returns top DeFi pool yields from DefiLlama filtered by asset, chain, minimum TVL and risk tier, with the reasons behind each pool's risk tier, for $0.05 USDC per call on Base. Example: `GET /v1/defi-yields?asset=USDC&chain=Base&limit=5`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
 - [Checkpoint402 New Token Safety Feed](https://api.checkpoint402.com/v1/new-tokens) — Lists newly launched token pools on Base, Ethereum or BSC with a 0–100 safety score and red flags from GoPlus (honeypot, mintable, owner powers, high tax, unlocked liquidity), for $0.10 USDC per call on Base. Example: `GET /v1/new-tokens?chain=base&limit=5`. ([OpenAPI](https://api.checkpoint402.com/openapi.json))
 
+- [BTC Intel](https://9eouter-0f49c8.abyte.my.id/.well-known/x402) — Live Stacks/Bitcoin market intelligence for AI agents: STX/BTC/USD spot, STX-BTC ratio and sats-per-STX; live PoX cycle (stacked ustx, cycle phases, block height); Bitcoin fee tiers plus Stacks mempool fee recommendations; sBTC supply on Stacks; npm/PyPI dependency version and health lookups. Dual-rail x402: USDC on Base (eip155:8453) or STX on Stacks mainnet, $0.01/call, no API keys or accounts. Example: `GET /market`. ([OpenAPI](https://9eouter-0f49c8.abyte.my.id/openapi.json)) ([llms.txt](https://9eouter-0f49c8.abyte.my.id/llms.txt)) ([Discovery](https://9eouter-0f49c8.abyte.my.id/.well-known/x402))
+
 ## Finance & FX
 
 - [Mercury402](https://mercury402.uk/.well-known/x402) — Pay-per-call U.S. Treasury and macro data API. FRED indicators, yield curves, GDP data with USDC micropayments on Base.
