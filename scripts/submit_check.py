@@ -45,6 +45,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from extract_url import same_site, site  # noqa: E402
+
 USER_AGENT    = "Gold-402-Verifier/1.0 (https://24klabs.ai/gold-402)"
 PROBE_TIMEOUT = 10
 
@@ -333,6 +336,10 @@ def manifest_doors(url):
         # x402 v2 writes `resource` as an object ({url, description}); older
         # manifests write a string. Both are a door (noted by Verdix on #326).
         if isinstance(ref, dict):
+            # The object can carry its own input schema (found by a GitHub Copilot
+            # review, 2026-10-14): take it before the dict is reduced to a url.
+            if schema is None:
+                schema = ref.get("input") or ref.get("inputSchema")
             ref = ref.get("url") or ref.get("resource")
         if not isinstance(ref, str) or not ref.strip():
             return
@@ -388,6 +395,19 @@ def main():
         fail(f"internal: unknown mode '{mode}' -- expected 'service' or 'resource'")
     print(f"[submit_check] Checking: {url}")
     print(f"[submit_check] Mode: {mode}")
+
+    # THE DOOR WE KNOCK MUST BE THE DOOR WE LIST  (2026-10-15).
+    # ENTRY_URL is the link in the shelf line the PR adds. A pass on a url from a
+    # different operator proves nothing about the entry: found by this seat and,
+    # independently by a GitHub Copilot review (a live 402 named in the
+    # description, a dead host on the line). Service mode only -- a library line
+    # legitimately links a repo while its docs live elsewhere.
+    entry = os.environ.get("ENTRY_URL", "").strip()
+    if mode == "service" and entry and not same_site(url, entry):
+        fail(f"the url checked ({site(url)}) is not on the same site as the link in "
+             f"the line this PR adds ({site(entry)}). The gate only passes a knock on "
+             f"the service being listed -- put that service's endpoint or "
+             f"/.well-known/x402 manifest in the entry line or a `URL:` line.")
 
     # 1. URL format validation
     try:
@@ -469,6 +489,14 @@ def main():
                  f"declaring the endpoints it sells.")
         print(f"[submit_check] manifest declares {len(doors)} resource(s)")
         tried = []
+        if mode == "service" and entry:
+            foreign = [r for r, _ in doors if not same_site(r, entry)]
+            doors = [(r, sc) for r, sc in doors if same_site(r, entry)]
+            if foreign:
+                print(f"[submit_check] skipping {len(foreign)} door(s) not on the entry's site ({site(entry)})")
+            if not doors:
+                fail(f"manifest at {url} declares no endpoint on the same site as the "
+                     f"line this PR adds ({site(entry)}).")
         for r, schema in doors[:5]:
             r_host = urllib.parse.urlparse(r).hostname
             if not r_host:
