@@ -53,6 +53,8 @@ Development tools, CLI utilities, monitoring, analytics, and CI/CD integrations 
 - [Tate Programs x402 Surface Checks](https://the402.tateprograms.com/.well-known/x402.json) — Paid launch-readiness checks of a public x402, MPP, Pay.sh or A2A surface, plus a 402 Index health watch and an agent-skill trust check. Its manifest lists four routes, $0.01 USDC per call on Base. Example: `POST /api/x402/triage`.
 - [swornly](https://swornly.luci.ws/.well-known/x402) — Testnet only (Base Sepolia, test USDC). Deterministic checks for agent builders: a dry run that says whether a shell or git command is destructive, a breaking-change diff of an MCP tool list, a stable fingerprint of an MCP tool list, and Markdown to PDF. Its manifest lists four routes, 0.005 to 0.02 test USDC per call. Example: `POST /convert`.
 - [AI Code Review API](https://x402-code-review.x402-cr.workers.dev/.well-known/x402.json) — Testnet only (Base Sepolia, test USDC). AI code review in two depths: a quick pass on naming, style and basic complexity, and a deep pass on security, performance, architecture and error handling. 0.01 test USDC for the quick review, 0.05 for the deep one. Example: `POST /review/quick`.
+- [Settlens](https://github.com/Pazificateur69/settlens) — x402 V2 HTTP conformance and payment-policy checks with a CLI, GitHub Action and offline MCP evaluation, without signing or sending payments.
+
 
 ---
 
