@@ -191,6 +191,9 @@ jobs:
           SUBMIT_URL: ${{ steps.extract_url.outputs.url }}
           EXAMPLE_BODY: ${{ steps.extract_url.outputs.example }}
           SUBMIT_MODE: ${{ steps.mode.outputs.mode }}
+          # The link in the shelf line this PR adds. The gate only passes a knock
+          # on the same site (2026-10-15; see submit_check.py).
+          ENTRY_URL: ${{ steps.extract_url.outputs.entry }}
         # WHY continue-on-error (2026-09-05, found on #185).
         # submit_check.py exits 1 on a fail. Every step after a failed step
         # carries an implicit success(), so the fail COMMENT and the needs-work

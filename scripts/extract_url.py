@@ -108,6 +108,45 @@ def is_offsite(url: str) -> bool:
 ENTRY_RE = re.compile(r"^[ \t]*[-*][ \t]+\[[^\]]+\]\((https?://[^)\s]+)\)", re.M)
 
 
+# THE SITE A URL BELONGS TO  (added 2026-10-15).
+# The gate knocks one url; the shelf lists another (the entry line). When those two
+# belong to different operators, a pass proves nothing about what gets listed: a PR
+# could name someone else's live 402 in its description while its own line is dead.
+# "Same operator" is approximated by registrable domain -- `api.foo.com` and
+# `docs.foo.com` are one site -- except on shared hosting, where every customer
+# sits under the same parent domain and only the full hostname tells them apart.
+SHARED_SUFFIXES = (
+    "workers.dev", "pages.dev", "onrender.com", "vercel.app", "railway.app",
+    "fly.dev", "netlify.app", "herokuapp.com", "github.io", "ts.net",
+    "ngrok-free.app", "ngrok-free.dev", "ngrok.io", "ngrok.app", "deno.dev",
+    "replit.app", "repl.co", "glitch.me", "appspot.com", "run.app", "web.app",
+    "firebaseapp.com", "azurewebsites.net", "cloudfunctions.net", "on.aws",
+    "trycloudflare.com", "loca.lt", "modal.run", "hf.space", "koyeb.app",
+    "amplifyapp.com", "my.id", "supabase.co",
+)
+SECOND_LEVEL = ("co", "com", "net", "org", "gov", "ac", "edu")
+
+
+def site(url: str) -> str:
+    """The operator-level name of a url's host: registrable domain, or the full
+    hostname on shared hosting and for bare IP addresses."""
+    h = host(url).rstrip(".")
+    if not h:
+        return ""
+    if h.replace(".", "").isdigit() or ":" in h:
+        return h
+    if any(h == s or h.endswith("." + s) for s in SHARED_SUFFIXES):
+        return h
+    parts = h.split(".")
+    if len(parts) >= 3 and parts[-2] in SECOND_LEVEL:
+        return ".".join(parts[-3:])
+    return ".".join(parts[-2:])
+
+
+def same_site(a: str, b: str) -> bool:
+    return bool(site(a)) and site(a) == site(b)
+
+
 def from_entry(added: str):
     """Tier 5: the url in the first shelf entry line the PR adds."""
     m = ENTRY_RE.search(added or "")
@@ -185,8 +224,11 @@ def main() -> int:
     body, added = os.environ.get("PR_BODY", ""), os.environ.get("PR_ADDED", "")
     url, tier, why = pick(body, added)
     example = pick_example(body, added)
+    e = from_entry(added)
+    entry = e[0] if e else ""
     print(f"[extract_url] tier {tier}: {why}")
     print(f"[extract_url] url: {url or '(none)'}")
+    print(f"[extract_url] entry line url: {entry or '(none)'}")
     print(f"[extract_url] example body: {example[:120] if example else '(none -- empty-body probe)'}")
     out = os.environ.get("GITHUB_OUTPUT")
     if out:
@@ -195,6 +237,7 @@ def main() -> int:
             fh.write(f"tier={tier}\n")
             fh.write(f"why={why}\n")
             fh.write(f"example={example}\n")
+            fh.write(f"entry={entry}\n")
     return 0
 
 
