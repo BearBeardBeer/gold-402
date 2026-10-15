@@ -344,6 +344,8 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 - [Astro Agents](https://astro-agent.dev/.well-known/x402) — Deterministic Western and Vedic astrology computed from NASA/JPL DE440 with no LLM (natal charts, transits, synastry, kundli, Vimshottari dashas, doshas, panchang, Gun Milan), paid per call via x402 in USDC on Base or Solana ($0.01–$0.50), each result carrying a SHA-256 that `POST /v1/verify` recomputes. ([OpenAPI](https://astro-agent.dev/openapi.json) | [llms.txt](https://astro-agent.dev/llms.txt))
 
+- [LitWit — The Literary Witness](https://www.pennypress.org/witness/attest) — Literary notary API: submit a SHA-256 hash of a written work and receive a tamper-evident hash-chained receipt in a public log. $0.05 USDC on Base. Example: `POST /witness/attest {"work_title":"gold-402 example probe","content_hash":"83e771fb19749e70500cd6690e25ea22ae3d05f162a0b7f7b28797971cfeeeb1"}`.
+
 ## Production Deployments (High Volume)
 
 - [AIsa](https://aisa.network) — Leading x402 payment processor. **10.5M+ cumulative transactions** on the x402 network. The benchmark for production scale.
