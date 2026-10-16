@@ -271,6 +271,8 @@ x402-enabled APIs and production services. No API keys. No accounts. Pay USDC pe
 
 ---
 
+- [UTA Trust API](https://uta-trust-api.eddyflores100.workers.dev/.well-known/x402.json) — Agent trust verification as a paid x402 resource: validates one Agent Trust Card (ATC/1.0) with real Ed25519 verification over the JCS-canonicalized card subtree (pinned anchors, two-sided validity window) and returns per-stage results plus a risk band. $0.01 USDC per verify ($0.08 for a 1-10 card batch) on Base mainnet (eip155:8453; Base Sepolia eip155:84532 kept for testing) via x402 v2 exact with EIP-3009 gasless settlement (mainnet: PayAI facilitator; testnet: x402.org); a call without payment gets a fail-closed 402 carrying the full challenge. Example: `POST https://uta-trust-api.eddyflores100.workers.dev/v1/trust/verify` with `{"card":{...}}` — the same URL without X-PAYMENT answers the live 402; v2 manifest and self-description at [/v1](https://uta-trust-api.eddyflores100.workers.dev/v1). ([OpenAPI](https://uta-trust-api.eddyflores100.workers.dev/openapi.json)) ([MCP](https://uta-trust-api.eddyflores100.workers.dev/mcp)) ([GitHub](https://github.com/alicelabs-llc/universal-trust-adapter))
+
 ## Business Intelligence
 
 - [Strale](https://strale.dev) — Trust layer for AI agents with 250+ independently tested business data and compliance capabilities: IBAN validation, VAT checks, sanctions screening, company lookups, SSL checks, and more. Quality-scored (SQS). $0.02-$1.00 USDC. [MCP](https://api.strale.io/mcp)
